@@ -50,6 +50,9 @@ const dom = {
   btnTheme:       $('btn-theme'),
   iconMoon:       $('icon-moon'),
   iconSun:        $('icon-sun'),
+  footer:         $('footer'),
+  version:        $('version'),
+  btnClear:       $('btn-clear'),
   sectionSearch:  $('section-search'),
   searchInput:    $('search-input'),
   btnSort:        $('btn-sort'),
@@ -101,6 +104,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     };
     dom[k].addEventListener('change', () => {
       chrome.storage.local.set({ [keyMap[k]]: dom[k].checked });
+      // Live-react to toggle changes
+      if (k === 'optShowRedirs') filterResults();
+      if (k === 'optHighlight' && state.results.length > 0) {
+        if (dom[k].checked) { pushHighlights(); }
+        else { sendHighlights([], [], true); }
+      }
     });
   });
 
@@ -123,7 +132,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   dom.btnExport.addEventListener('click', exportResults);
   dom.btnCopyBroken.addEventListener('click', copyBrokenLinks);
   dom.btnExportJson.addEventListener('click', exportJson);
+  dom.btnClear.addEventListener('click', clearResults);
   dom.btnTheme.addEventListener('click', toggleTheme);
+
+  // Show version
+  const manifest = chrome.runtime.getManifest();
+  dom.version.textContent = `v${manifest.version}`;
   dom.searchInput.addEventListener('input', () => {
     state.searchQuery = dom.searchInput.value.toLowerCase();
     filterResults();
@@ -156,6 +170,7 @@ async function startScan() {
   state.checked  = 0;
   state.total    = 0;
 
+  state.scanStart = Date.now();
   dom.emptyState.classList.add('hidden');
   dom.results.querySelectorAll('.result-row').forEach(r => r.remove());
   dom.btnStart.disabled = true;
@@ -266,13 +281,15 @@ async function startScan() {
   }
 
   if (!state.aborted) {
-    setProgress('Done!', state.total, state.total);
-    setTimeout(() => dom.sectionProgress.classList.add('hidden'), 1500);
+    const elapsed = ((Date.now() - state.scanStart) / 1000).toFixed(1);
+    setProgress(`Done in ${elapsed}s`, state.total, state.total);
+    setTimeout(() => dom.sectionProgress.classList.add('hidden'), 2000);
     notifyScanComplete();
   }
 
   dom.btnExport.disabled = state.results.length === 0;
   dom.btnExportJson.disabled = state.results.length === 0;
+  if (state.results.length > 0) dom.footer.classList.remove('hidden');
   dom.btnCopyBroken.classList.toggle('hidden',
     state.results.filter(r => r.isBroken && !r.skipped).length === 0);
   saveSession();
@@ -283,6 +300,7 @@ function stopScan() {
   state.aborted = true;
   setProgress('Stopped.', state.checked, state.total);
   setTimeout(() => dom.sectionProgress.classList.add('hidden'), 1200);
+  saveSession();
   resetUI();
 }
 
@@ -304,13 +322,10 @@ function setProgress(label, done, total) {
 }
 
 function updateProgress() {
-  const hasBroken = state.results.some(r => r.isBroken);
-  dom.progressBar.classList.toggle('has-broken', hasBroken);
-  setProgress(
-    `Checking… (${state.results.filter(r => r.isBroken).length} broken)`,
-    state.checked,
-    state.total
-  );
+  const brokenCount = state.results.filter(r => r.isBroken).length;
+  dom.progressBar.classList.toggle('has-broken', brokenCount > 0);
+  const label = brokenCount > 0 ? `Checking… (${brokenCount} broken)` : 'Checking…';
+  setProgress(label, state.checked, state.total);
 }
 
 // ─── Stats ─────────────────────────────────────────────────────
@@ -613,6 +628,26 @@ function copyBrokenLinks() {
   setTimeout(() => { label.textContent = prev; }, 1200);
 }
 
+// ─── Clear results ──────────────────────────────────────────────
+function clearResults() {
+  state.results = [];
+  state.checked = 0;
+  state.total = 0;
+  dom.results.querySelectorAll('.result-row').forEach(r => r.remove());
+  dom.emptyState.classList.remove('hidden');
+  dom.sectionStats.classList.add('hidden');
+  dom.sectionTabs.classList.add('hidden');
+  dom.sectionSearch.classList.add('hidden');
+  dom.footer.classList.add('hidden');
+  dom.btnExport.disabled = true;
+  dom.btnExportJson.disabled = true;
+  dom.btnCopyBroken.classList.add('hidden');
+  dom.btnStartLabel.textContent = 'Check Links';
+  if (dom.optHighlight.checked) sendHighlights([], [], true);
+  updateBadge(0);
+  chrome.storage.session.remove('scanData');
+}
+
 // ─── Notification ───────────────────────────────────────────────
 function notifyScanComplete() {
   // Only notify if the popup isn't focused (user switched tabs)
@@ -675,6 +710,7 @@ async function restoreSession() {
   dom.btnStartLabel.textContent = 'Re-check';
   dom.btnExport.disabled = false;
   dom.btnExportJson.disabled = false;
+  dom.footer.classList.remove('hidden');
 
   // Set active tab
   document.querySelectorAll('.tab').forEach(t => {

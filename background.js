@@ -186,11 +186,15 @@ async function injectHighlights(tabId, broken, redirects, clear) {
         document.head.appendChild(s);
       }
 
+      // Build lookup maps for O(1) access per anchor
+      const brokenMap = new Map(broken.map(b => [b.url, b]));
+      const redirectMap = new Map(redirects.map(r => [r.url, r]));
+
       const anchors = document.querySelectorAll('a[href]');
       anchors.forEach(a => {
         const url = a.href;
-        const brokenEntry = broken.find(b => b.url === url);
-        const redirectEntry = redirects.find(r => r.url === url);
+        const brokenEntry = brokenMap.get(url);
+        const redirectEntry = redirectMap.get(url);
 
         if (brokenEntry) {
           a.setAttribute(ATTR, 'broken');

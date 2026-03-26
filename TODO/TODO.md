@@ -55,3 +55,11 @@
 - [x] **029 - Link deduplication toggle** — 2026-03-25
 - [x] **025 - Ignore list / allowlist** — 2026-03-25
 - [x] **026 - Retry logic (exponential back-off for 503/504)** — 2026-03-25
+- [x] **032 - Show scan elapsed time** — 2026-03-26
+- [x] **033 - Stop scan saves partial results** — 2026-03-26
+- [x] **034 - Highlight toggle clears/applies live** — 2026-03-26
+- [x] **035 - Redirects toggle refilters live** — 2026-03-26
+- [x] **036 - Progress hides "0 broken" noise** — 2026-03-26
+- [x] **037 - Highlight lookup uses Map (O(1))** — 2026-03-26
+- [x] **038 - Clear results button** — 2026-03-26
+- [x] **039 - Version displayed in footer** — 2026-03-26
