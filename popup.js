@@ -24,6 +24,7 @@ const dom = {
   btnStartLabel:  $('btn-start-label'),
   btnStop:        $('btn-stop'),
   btnExport:      $('btn-export'),
+  btnCopyBroken:  $('btn-copy-broken'),
   sectionProgress:$('section-progress'),
   progressLabel:  $('progress-label'),
   progressCount:  $('progress-count'),
@@ -76,6 +77,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   dom.btnStart.addEventListener('click', startScan);
   dom.btnStop.addEventListener('click', stopScan);
   dom.btnExport.addEventListener('click', exportResults);
+  dom.btnCopyBroken.addEventListener('click', copyBrokenLinks);
 
   // Tabs
   document.querySelectorAll('.tab').forEach(t => {
@@ -195,6 +197,8 @@ async function startScan() {
   }
 
   dom.btnExport.disabled = state.results.length === 0;
+  dom.btnCopyBroken.classList.toggle('hidden',
+    state.results.filter(r => r.isBroken && !r.skipped).length === 0);
   resetUI();
 }
 
@@ -245,6 +249,12 @@ function updateStats(total, broken, redirects, ok) {
   dom.statBroken.textContent    = broken;
   dom.statRedirects.textContent = redirects;
   dom.statOk.textContent        = ok;
+
+  // Update tab counts
+  updateTabCounts(broken, redirects, ok);
+
+  // Update toolbar badge
+  updateBadge(broken);
 }
 
 // ─── Result rows ───────────────────────────────────────────────
@@ -265,16 +275,33 @@ function appendResult(r) {
     content.appendChild(textEl);
   }
 
-  // URL
+  // URL row with copy button
+  const urlRow = document.createElement('div');
+  urlRow.className = 'result-url-row';
   const urlEl = document.createElement('div');
   urlEl.className = 'result-url';
   const a = document.createElement('a');
   a.href = r.url;
   a.target = '_blank';
   a.rel = 'noopener';
-  a.textContent = truncate(r.url, 62);
+  a.textContent = truncate(r.url, 56);
   urlEl.appendChild(a);
-  content.appendChild(urlEl);
+  urlRow.appendChild(urlEl);
+
+  const copyBtn = document.createElement('button');
+  copyBtn.className = 'btn-copy';
+  copyBtn.title = 'Copy URL';
+  copyBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  copyBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(r.url);
+    copyBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    setTimeout(() => {
+      copyBtn.innerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    }, 1200);
+  });
+  urlRow.appendChild(copyBtn);
+  content.appendChild(urlRow);
 
   // Redirect arrow
   if (r.isRedirect && r.finalUrl !== r.url) {
@@ -327,6 +354,27 @@ function getCategory(r) {
   if (r.isBroken && !r.skipped) return 'broken';
   if (r.isRedirect && !r.isBroken) return 'redirects';
   return 'ok';
+}
+
+// ─── Tab counts ─────────────────────────────────────────────────
+function updateTabCounts(broken, redirects, ok) {
+  const tabs = document.querySelectorAll('.tab');
+  tabs.forEach(t => {
+    const key = t.dataset.tab;
+    const base = { all: 'All', broken: 'Broken', redirects: 'Redirects', ok: 'OK' }[key];
+    const count = { all: null, broken, redirects, ok }[key];
+    t.textContent = count != null && count > 0 ? `${base} (${count})` : base;
+  });
+}
+
+// ─── Badge counter ──────────────────────────────────────────────
+function updateBadge(brokenCount) {
+  if (brokenCount > 0) {
+    chrome.action.setBadgeText({ text: String(brokenCount), tabId: state.tabId });
+    chrome.action.setBadgeBackgroundColor({ color: '#ef4444', tabId: state.tabId });
+  } else {
+    chrome.action.setBadgeText({ text: '', tabId: state.tabId });
+  }
 }
 
 // ─── Tab filtering ─────────────────────────────────────────────
@@ -411,6 +459,18 @@ function exportResults() {
   a.download = `linkcheck_${safe}_${dateStamp()}.md`;
   a.click();
   URL.revokeObjectURL(url);
+}
+
+// ─── Copy broken ────────────────────────────────────────────────
+function copyBrokenLinks() {
+  const broken = state.results.filter(r => r.isBroken && !r.skipped);
+  if (broken.length === 0) return;
+  const text = broken.map(r => r.url).join('\n');
+  navigator.clipboard.writeText(text);
+  const label = dom.btnCopyBroken.querySelector('.btn-copy-label');
+  const prev = label.textContent;
+  label.textContent = 'Copied!';
+  setTimeout(() => { label.textContent = prev; }, 1200);
 }
 
 // ─── Helpers ───────────────────────────────────────────────────

@@ -187,8 +187,17 @@ button {
   border: 1px solid var(--border);
   margin-left: auto;
 }
+.btn-copy-broken + .btn-export { margin-left: 0; }
 .btn-export:hover:not(:disabled) { color: var(--text); border-color: var(--border-2); }
 .btn-export:disabled { opacity: .35; cursor: not-allowed; }
+
+.btn-copy-broken {
+  background: var(--broken-bg);
+  color: var(--broken);
+  border: 1px solid rgba(239,68,68,.3);
+  margin-left: auto;
+}
+.btn-copy-broken:hover { background: rgba(239,68,68,.22); }
 
 .btn-icon { flex-shrink: 0; }
 
@@ -421,6 +430,28 @@ button {
   color: var(--neutral);
   margin-top: 2px;
 }
+
+/* ─── Copy button on result rows ─────────────────────────────── */
+.result-url-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.result-url-row .result-url { flex: 1; min-width: 0; }
+
+.btn-copy {
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  padding: 2px 4px;
+  border-radius: 3px;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--transition), color var(--transition);
+}
+.result-row:hover .btn-copy { opacity: 1; }
+.btn-copy:hover { color: var(--accent); }
 
 /* ─── Utility ────────────────────────────────────────────────── */
 .hidden { display: none !important; }

@@ -14,12 +14,7 @@
 
 - [ ] **013 - Persist scan results across popup close** — Store the last scan's results, stats, and page URL in `chrome.storage.session`. When the popup reopens on the same tab, restore everything instantly instead of showing the empty state. Clear when the tab navigates to a new page.
 - [ ] **014 - Light / dark theme** — Add a light theme and a toggle (sun/moon icon) in the header. Default to system preference via `prefers-color-scheme`. Persist choice. Dark-only alienates users who work in bright environments.
-- [ ] **015 - Copy URL to clipboard** — Click-to-copy icon on each result row. When fixing broken links you need the URL — having to right-click → copy is friction. Show a brief "Copied!" flash.
-- [ ] **016 - Copy all broken links** — Button (next to Export) that copies all broken URLs to clipboard as a newline-separated list. Great for pasting into issues, PRs, or Slack.
-- [ ] **017 - Tab counts in labels** — Show result counts in tab labels: "Broken (3)" instead of just "Broken". Gives instant overview without clicking each tab.
-- [ ] **018 - Badge counter on toolbar icon** — Show broken link count as a red badge on the extension icon in the toolbar via `chrome.action.setBadgeText`. Users see at a glance if there are problems without opening the popup.
 - [ ] **019 - Scan complete notification** — If the user switches to another tab during a long scan, show a browser notification when done (e.g. "LinkCheck: 3 broken links found on example.com"). Uses `chrome.notifications` API. Only fire if popup is not focused.
-- [ ] **020 - Keyboard shortcut to scan** — Register a Chrome keyboard shortcut (e.g. `Ctrl+Shift+L`) via manifest `commands` to open the popup. Power users expect this.
 - [ ] **021 - Result sorting** — Allow sorting results by status code, URL, or link text. Click column-style sort indicators. Helps find patterns in large result sets.
 - [ ] **022 - Search / filter within results** — Small search input above the results list. Filters visible results by URL or link text as you type. Essential when a page has 200+ links.
 
@@ -55,3 +50,9 @@
 - [x] **012 - Git repository init + push to GitHub** — 2026-03-25
 - [x] **007a - Privacy policy page (privacy.html)** — 2026-03-25
 - [x] **007b - Landing page (index.html)** — 2026-03-25
+- [x] **007 - GitHub Pages enabled** — 2026-03-25
+- [x] **015 - Copy URL to clipboard** — 2026-03-25
+- [x] **016 - Copy all broken links** — 2026-03-25
+- [x] **017 - Tab counts in labels** — 2026-03-25
+- [x] **018 - Badge counter on toolbar icon** — 2026-03-25
+- [x] **020 - Keyboard shortcut (Ctrl+Shift+L)** — 2026-03-25
