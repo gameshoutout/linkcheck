@@ -29,6 +29,7 @@ const dom = {
   rangeConcurrency:$('range-concurrency'),
   concurrencyVal: $('concurrency-val'),
   btnExportJson:  $('btn-export-json'),
+  ignorePatterns: $('ignore-patterns'),
   btnStart:       $('btn-start'),
   btnStartLabel:  $('btn-start-label'),
   btnStop:        $('btn-stop'),
@@ -60,7 +61,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load saved options
   const saved = await chrome.storage.local.get([
     'skipImages','skip403','showRedirects','highlight','theme',
-    'timeout','concurrency','dedup'
+    'timeout','concurrency','dedup','ignorePatterns'
   ]);
   dom.optSkipImages.checked = saved.skipImages ?? false;
   dom.optSkip403.checked    = saved.skip403    ?? false;
@@ -71,6 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   dom.timeoutVal.textContent = `${dom.rangeTimeout.value}s`;
   dom.rangeConcurrency.value = saved.concurrency ?? 5;
   dom.concurrencyVal.textContent = dom.rangeConcurrency.value;
+  dom.ignorePatterns.value = saved.ignorePatterns ?? '';
 
   // Apply theme
   const theme = saved.theme ?? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
@@ -110,6 +112,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   dom.rangeConcurrency.addEventListener('input', () => {
     dom.concurrencyVal.textContent = dom.rangeConcurrency.value;
     chrome.storage.local.set({ concurrency: parseInt(dom.rangeConcurrency.value) });
+  });
+  dom.ignorePatterns.addEventListener('change', () => {
+    chrome.storage.local.set({ ignorePatterns: dom.ignorePatterns.value });
   });
 
   // Buttons
@@ -197,6 +202,13 @@ async function startScan() {
       seen.add(l.url);
       return true;
     });
+  }
+
+  // Apply ignore list
+  const ignoreRaw = dom.ignorePatterns.value.trim();
+  if (ignoreRaw) {
+    const patterns = ignoreRaw.split('\n').map(p => p.trim()).filter(Boolean);
+    links = links.filter(l => !patterns.some(p => l.url.includes(p)));
   }
 
   if (links.length === 0) {

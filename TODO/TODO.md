@@ -13,11 +13,9 @@
 
 ## Features (v1.x Roadmap — High Priority)
 
-- [ ] **025 - Ignore list / allowlist** — Persist URLs or patterns to always skip (e.g. localhost, internal domains). Stored in `chrome.storage.local`.
 
 ## Features (v1.x Roadmap — Medium Priority)
 
-- [ ] **026 - Retry logic** — Exponential back-off for transient 503/504 errors before marking as broken.
 
 ## Features (v1.x Roadmap — Low Priority)
 
@@ -55,3 +53,5 @@
 - [x] **027 - Right-click context menu** — 2026-03-25
 - [x] **028 - JSON export format** — 2026-03-25
 - [x] **029 - Link deduplication toggle** — 2026-03-25
+- [x] **025 - Ignore list / allowlist** — 2026-03-25
+- [x] **026 - Retry logic (exponential back-off for 503/504)** — 2026-03-25

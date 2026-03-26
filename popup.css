@@ -240,6 +240,50 @@ header {
   font-weight: 500;
 }
 
+/* ─── Ignore list ────────────────────────────────────────────── */
+.ignore-section {
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.ignore-toggle {
+  display: flex;
+  align-items: center;
+  padding: 6px 14px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  cursor: pointer;
+  user-select: none;
+  list-style: none;
+}
+.ignore-toggle::before {
+  content: '+';
+  margin-right: 6px;
+  font-size: 12px;
+  color: var(--accent);
+}
+.ignore-section[open] .ignore-toggle::before { content: '\2212'; }
+.ignore-toggle:hover { color: var(--text); }
+
+.ignore-textarea {
+  display: block;
+  width: calc(100% - 28px);
+  margin: 0 14px 8px;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text);
+  resize: vertical;
+  outline: none;
+  line-height: 1.5;
+}
+.ignore-textarea::placeholder { color: var(--text-dim); }
+.ignore-textarea:focus { border-color: var(--accent); }
+
 /* ─── Action bar ─────────────────────────────────────────────── */
 .action-bar {
   display: flex;

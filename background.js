@@ -46,7 +46,24 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
+const RETRY_CODES = new Set([503, 504]);
+const MAX_RETRIES = 2;
+
 async function checkLink(url, timeout) {
+  let lastResult;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    lastResult = await attemptCheck(url, timeout);
+    // Only retry on transient errors
+    if (!RETRY_CODES.has(lastResult.statusCode)) break;
+    // Exponential back-off: 1s, 2s
+    if (attempt < MAX_RETRIES) {
+      await new Promise(r => setTimeout(r, 1000 * (attempt + 1)));
+    }
+  }
+  return lastResult;
+}
+
+async function attemptCheck(url, timeout) {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
