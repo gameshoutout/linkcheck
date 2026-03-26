@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LinkCheck — Broken Link Scanner for Chrome</title>
+  <meta name="description" content="A free, open source Chrome extension that scans any webpage for broken and redirected links. One click to audit. Zero configuration.">
+  <style>
+    :root {
+      --bg: #13131a;
+      --bg-2: #1c1c28;
+      --bg-3: #252535;
+      --border: #2e2e42;
+      --text: #d4d4e8;
+      --text-dim: #6e6e8a;
+      --text-bright: #f0f0ff;
+      --broken: #ef4444;
+      --redirect: #f97316;
+      --ok: #22c55e;
+      --accent: #818cf8;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code {
+      background: var(--bg-3);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    /* ─── Hero ─────────────────────────────────────── */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px;
+      border-bottom: 1px solid var(--border);
+    }
+    .hero-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      margin-bottom: 24px;
+      color: var(--accent);
+    }
+    .hero h1 {
+      font-size: 42px;
+      color: var(--text-bright);
+      margin-bottom: 12px;
+      letter-spacing: -0.02em;
+    }
+    .hero h1 span { color: var(--accent); }
+    .hero .tagline {
+      font-size: 20px;
+      color: var(--text-dim);
+      max-width: 520px;
+      margin: 0 auto 32px;
+    }
+    .hero-badges {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 500;
+      border: 1px solid var(--border);
+      background: var(--bg-2);
+      color: var(--text-dim);
+    }
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ─── Section layout ──────────────────────────── */
+    .container {
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    section {
+      padding: 60px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    section:last-of-type { border-bottom: none; }
+    section h2 {
+      font-size: 26px;
+      color: var(--text-bright);
+      margin-bottom: 24px;
+    }
+
+    /* ─── Features grid ───────────────────────────── */
+    .features {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .features { grid-template-columns: 1fr; }
+    }
+    .feature-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+    }
+    .feature-card h3 {
+      font-size: 16px;
+      color: var(--text-bright);
+      margin-bottom: 8px;
+    }
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ─── Steps ───────────────────────────────────── */
+    .steps {
+      counter-reset: step;
+      list-style: none;
+      padding: 0;
+    }
+    .steps li {
+      counter-increment: step;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .steps li::before {
+      content: counter(step);
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .step-content h3 {
+      font-size: 16px;
+      color: var(--text-bright);
+      margin-bottom: 4px;
+    }
+    .step-content p {
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+
+    /* ─── Options table ───────────────────────────── */
+    .options-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+    }
+    .options-table th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--bg-2);
+      color: var(--text-bright);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      border-bottom: 1px solid var(--border);
+    }
+    .options-table td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+    .options-table td:first-child {
+      color: var(--text);
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    /* ─── Status legend ───────────────────────────── */
+    .status-legend {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+    .status-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    /* ─── Install ─────────────────────────────────── */
+    .install-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 600px) {
+      .install-options { grid-template-columns: 1fr; }
+    }
+    .install-card {
+      background: var(--bg-2);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 24px;
+    }
+    .install-card h3 {
+      font-size: 16px;
+      color: var(--text-bright);
+      margin-bottom: 12px;
+    }
+    .install-card p, .install-card ol {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+    .install-card ol {
+      padding-left: 20px;
+    }
+    .install-card li {
+      margin-bottom: 6px;
+    }
+    .btn-store {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 8px;
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    /* ─── FAQ ─────────────────────────────────────── */
+    details {
+      border-bottom: 1px solid var(--border);
+      padding: 16px 0;
+    }
+    details:last-child { border-bottom: none; }
+    summary {
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-bright);
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    summary::before {
+      content: '+';
+      flex-shrink: 0;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--bg-3);
+      color: var(--accent);
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.2s;
+    }
+    details[open] summary::before {
+      content: '\2212';
+    }
+    details p {
+      margin-top: 12px;
+      padding-left: 32px;
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.7;
+    }
+
+    /* ─── Footer ──────────────────────────────────── */
+    footer {
+      padding: 40px 20px;
+      text-align: center;
+      font-size: 13px;
+      color: var(--text-dim);
+      border-top: 1px solid var(--border);
+    }
+    footer a { color: var(--accent); }
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <div class="hero">
+    <div class="hero-icon">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+        <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+      </svg>
+    </div>
+    <h1>Link<span>Check</span></h1>
+    <p class="tagline">Scan any webpage for broken and redirected links. One click. Zero configuration.</p>
+    <div class="hero-badges">
+      <span class="badge"><span class="badge-dot" style="background:var(--ok)"></span> Free &amp; open source</span>
+      <span class="badge"><span class="badge-dot" style="background:var(--accent)"></span> Chrome / Edge / Brave</span>
+      <span class="badge"><span class="badge-dot" style="background:var(--redirect)"></span> No data collected</span>
+    </div>
+  </div>
+
+  <!-- How it works -->
+  <section>
+    <div class="container">
+      <h2>How it works</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-content">
+            <h3>Click the LinkCheck icon</h3>
+            <p>Open any webpage and click the LinkCheck icon in your browser toolbar. A popup panel appears showing the current page.</p>
+          </div>
+        </li>
+        <li>
+          <div class="step-content">
+            <h3>Press Check Links</h3>
+            <p>LinkCheck finds every link on the page and checks each one in the background. Results stream in as they're discovered — no waiting for the full scan to finish.</p>
+          </div>
+        </li>
+        <li>
+          <div class="step-content">
+            <h3>Review results</h3>
+            <p>Broken links show a red badge, redirects show orange, and working links show green. Use the tabs to filter by status. Hover over highlighted links on the page to see tooltips with details.</p>
+          </div>
+        </li>
+        <li>
+          <div class="step-content">
+            <h3>Export</h3>
+            <p>Click Export to download a Markdown report of all results. Share it in a pull request, issue, or email.</p>
+          </div>
+        </li>
+      </ol>
+
+      <div class="status-legend">
+        <span class="status-item"><span class="status-dot" style="background:var(--broken)"></span> Broken (404, 500, etc.)</span>
+        <span class="status-item"><span class="status-dot" style="background:var(--redirect)"></span> Redirect (301, 302)</span>
+        <span class="status-item"><span class="status-dot" style="background:var(--ok)"></span> OK (200)</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section>
+    <div class="container">
+      <h2>Features</h2>
+      <div class="features">
+        <div class="feature-card">
+          <h3>Real-time results</h3>
+          <p>Broken links appear the instant they're found. No need to wait for the entire scan to complete.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Page highlights</h3>
+          <p>Broken links get a red dashed outline, redirects get orange. Hover to see status codes and redirect targets right on the page.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Smart checking</h3>
+          <p>Uses HEAD requests to minimize bandwidth, falls back to GET when needed. Handles timeouts, redirects, and server errors gracefully.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Markdown export</h3>
+          <p>Download a clean report listing all broken links and redirects. Ready to paste into GitHub issues, PRs, or documentation.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Flexible options</h3>
+          <p>Skip image links, ignore 403 errors, toggle redirect visibility, or turn highlights on and off. Your preferences are saved automatically.</p>
+        </div>
+        <div class="feature-card">
+          <h3>Privacy-first</h3>
+          <p>No analytics, no tracking, no data collection. The only network requests are to the links already on your page. <a href="privacy.html">Read the full policy.</a></p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Options -->
+  <section>
+    <div class="container">
+      <h2>Options</h2>
+      <p style="margin-bottom:20px; color:var(--text-dim);">Toggle these in the popup header. Your choices are saved between sessions.</p>
+      <table class="options-table">
+        <thead>
+          <tr><th>Option</th><th>What it does</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Skip images</td><td>Excludes links that point to image files (.png, .jpg, .gif, .svg, .webp, etc.) from the scan.</td></tr>
+          <tr><td>Skip 403</td><td>Treats HTTP 403 (Forbidden) as non-broken. Useful for sites that block automated requests.</td></tr>
+          <tr><td>Show redirects</td><td>Controls whether redirected links appear in the "All" tab. The Redirects tab is always available.</td></tr>
+          <tr><td>Highlight</td><td>Overlays colored outlines on broken and redirected links directly on the page, with hover tooltips.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Install -->
+  <section>
+    <div class="container">
+      <h2>Install</h2>
+      <div class="install-options">
+        <div class="install-card">
+          <h3>Chrome Web Store</h3>
+          <p><span class="btn-store">Coming soon</span></p>
+          <p style="margin-top:12px;">Works on Chrome, Edge, Brave, and other Chromium browsers.</p>
+        </div>
+        <div class="install-card">
+          <h3>Manual install (developer)</h3>
+          <ol>
+            <li>Download or clone the <a href="https://github.com/computerscienceiscool/linkcheck">GitHub repo</a></li>
+            <li>Open Chrome and go to <code>chrome://extensions</code></li>
+            <li>Enable <strong>Developer Mode</strong> (top-right toggle)</li>
+            <li>Click <strong>Load unpacked</strong> and select the project folder</li>
+            <li>The LinkCheck icon appears in your toolbar</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section>
+    <div class="container">
+      <h2>Frequently asked questions</h2>
+
+      <details>
+        <summary>What browsers does LinkCheck support?</summary>
+        <p>LinkCheck works on Chrome, Microsoft Edge, Brave, and any Chromium-based browser (version 88 or later). Firefox and Safari are not currently supported.</p>
+      </details>
+
+      <details>
+        <summary>Why does it need the "Access all URLs" permission?</summary>
+        <p>LinkCheck sends requests to every link found on the page you're scanning. Without broad host permission, it could only check links on a handful of pre-approved domains — which would make it useless for most pages. The permission is used solely for link checking, never for reading or modifying page content on other sites.</p>
+      </details>
+
+      <details>
+        <summary>Does LinkCheck send my data anywhere?</summary>
+        <p>No. The only outbound requests are HTTP checks to the URLs already visible on the page. No analytics, telemetry, or tracking of any kind. See the <a href="privacy.html">privacy policy</a> for details.</p>
+      </details>
+
+      <details>
+        <summary>Why do some links show as broken when they work in my browser?</summary>
+        <p>Some servers block automated requests (returning 403 Forbidden) or behave differently for HEAD requests. Try enabling the "Skip 403" option. Links behind login walls or CAPTCHAs will also appear broken since LinkCheck can't authenticate.</p>
+      </details>
+
+      <details>
+        <summary>What counts as a "redirect"?</summary>
+        <p>A link is flagged as a redirect when the final URL after following all redirects is different from the original link (ignoring trailing slashes). For example, if <code>http://example.com</code> redirects to <code>https://www.example.com</code>, that's a redirect. Updating these links improves page load speed and SEO.</p>
+      </details>
+
+      <details>
+        <summary>Can I scan pages behind a login?</summary>
+        <p>Yes — if you're already logged in and can see the page, LinkCheck can scan it. It runs directly in your browser using your existing session. However, links that <em>themselves</em> require authentication will likely show as broken.</p>
+      </details>
+
+      <details>
+        <summary>Is LinkCheck open source?</summary>
+        <p>Yes. LinkCheck is released under the <a href="https://github.com/computerscienceiscool/linkcheck/blob/main/LICENSE">MIT License</a>. Contributions are welcome on <a href="https://github.com/computerscienceiscool/linkcheck">GitHub</a>.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-links">
+      <a href="https://github.com/computerscienceiscool/linkcheck">GitHub</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="https://github.com/computerscienceiscool/linkcheck/blob/main/LICENSE">License</a>
+      <a href="https://github.com/computerscienceiscool/linkcheck/issues">Report an Issue</a>
+    </div>
+    <p>LinkCheck is open source under the MIT License.</p>
+  </footer>
+
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Privacy Policy — LinkCheck</title>
+  <style>
+    :root {
+      --bg: #13131a;
+      --bg-2: #1c1c28;
+      --border: #2e2e42;
+      --text: #d4d4e8;
+      --text-dim: #6e6e8a;
+      --text-bright: #f0f0ff;
+      --accent: #818cf8;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      font-size: 16px;
+      line-height: 1.7;
+      padding: 40px 20px;
+    }
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    h1 {
+      font-size: 28px;
+      color: var(--text-bright);
+      margin-bottom: 8px;
+    }
+    .subtitle {
+      color: var(--text-dim);
+      font-size: 14px;
+      margin-bottom: 40px;
+    }
+    h2 {
+      font-size: 20px;
+      color: var(--text-bright);
+      margin-top: 36px;
+      margin-bottom: 12px;
+    }
+    p, ul { margin-bottom: 16px; }
+    ul { padding-left: 24px; }
+    li { margin-bottom: 6px; }
+    .back {
+      display: inline-block;
+      margin-bottom: 32px;
+      font-size: 14px;
+      color: var(--text-dim);
+    }
+    .back:hover { color: var(--accent); }
+    footer {
+      margin-top: 60px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="index.html" class="back">&larr; Back to LinkCheck</a>
+
+    <h1>Privacy Policy</h1>
+    <p class="subtitle">Last updated: March 25, 2026</p>
+
+    <h2>Summary</h2>
+    <p>LinkCheck does not collect, store, transmit, or sell any personal data. Period.</p>
+
+    <h2>What data does LinkCheck access?</h2>
+    <p>When you click <strong>Check Links</strong>, the extension reads the anchor links (<code>&lt;a href&gt;</code>) on the current page in your active browser tab. This happens entirely within your browser.</p>
+
+    <h2>What network requests does LinkCheck make?</h2>
+    <p>LinkCheck sends HTTP HEAD or GET requests <strong>only</strong> to the URLs that already exist on the page you are scanning. These requests check whether the link is reachable. No other network requests are made — no analytics, no telemetry, no tracking pixels, no phone-home calls.</p>
+
+    <h2>What does LinkCheck store?</h2>
+    <p>LinkCheck stores four boolean preferences in your browser's local storage:</p>
+    <ul>
+      <li>Skip images (on/off)</li>
+      <li>Skip 403 (on/off)</li>
+      <li>Show redirects (on/off)</li>
+      <li>Highlight (on/off)</li>
+    </ul>
+    <p>These values never leave your browser. They are not synced, uploaded, or shared.</p>
+
+    <h2>Third-party services</h2>
+    <p>None. LinkCheck does not use any third-party analytics, advertising, error reporting, or data processing services.</p>
+
+    <h2>Permissions explained</h2>
+    <ul>
+      <li><strong>activeTab</strong> — Lets LinkCheck read links on the page you're currently viewing, only when you activate the extension.</li>
+      <li><strong>scripting</strong> — Lets LinkCheck inject the highlight overlays (colored outlines and tooltips) onto the page.</li>
+      <li><strong>storage</strong> — Lets LinkCheck save your four preference toggles between sessions.</li>
+      <li><strong>tabs</strong> — Lets LinkCheck display the current page's URL in the popup header.</li>
+      <li><strong>host_permissions (all URLs)</strong> — Lets LinkCheck send requests to any link found on the page to check if it's broken. Without this, the extension could only check links on a few pre-approved domains.</li>
+    </ul>
+
+    <h2>Children's privacy</h2>
+    <p>LinkCheck does not collect data from anyone, including children under 13.</p>
+
+    <h2>Changes to this policy</h2>
+    <p>If this policy changes, the updated version will be posted here with a new date. Since LinkCheck collects no data, meaningful changes are unlikely.</p>
+
+    <h2>Contact</h2>
+    <p>Questions or concerns? Open an issue on <a href="https://github.com/computerscienceiscool/linkcheck/issues">GitHub</a>.</p>
+
+    <footer>
+      LinkCheck is open source under the <a href="https://github.com/computerscienceiscool/linkcheck/blob/main/LICENSE">MIT License</a>.
+    </footer>
+  </div>
+</body>
+</html>

@@ -7,7 +7,7 @@
 ## Features (v1.0 — Publishing Requirements)
 
 - [ ] **006 - Chrome Web Store listing assets** — Need store description, screenshots (1280x800), promotional images (440x280 small tile, 920x680 large tile), and category selection for publishing.
-- [ ] **007 - Privacy policy page** — Chrome Web Store requires a privacy policy URL. Extension collects no data, but a simple policy page is still required. Will live in the GitHub repo (e.g. `PRIVACY.md`) and be served via GitHub Pages.
+- [ ] **007 - Enable GitHub Pages** — Turn on GitHub Pages for the repo so `index.html` and `privacy.html` are served at a public URL. Needed for Chrome Web Store homepage and privacy policy fields.
 - [ ] **008 - Bundle fonts locally** — `popup.html` loads JetBrains Mono and IBM Plex Sans from Google Fonts CDN. This means: (a) popup needs internet just to look right, (b) Google gets a request every time the popup opens, (c) Chrome Web Store reviewers may flag external resource loads. Fix: download the font files into a `fonts/` folder and reference them with `@font-face` in the CSS. Adds ~150KB but makes the extension fully self-contained.
 
 ## Features (UX Polish — Make Users Love It)
@@ -53,3 +53,5 @@
 - [x] **010 - README.md** — 2026-03-25
 - [x] **011 - .gitignore** — 2026-03-25
 - [x] **012 - Git repository init + push to GitHub** — 2026-03-25
+- [x] **007a - Privacy policy page (privacy.html)** — 2026-03-25
+- [x] **007b - Landing page (index.html)** — 2026-03-25
