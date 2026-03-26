@@ -2,18 +2,14 @@
 
 ## Bugs
 
-- [ ] **005 - Popup closes and loses scan results** — Chrome popups vanish when you click outside them. A 30-second scan is lost if the user clicks the page. Persist scan results to `chrome.storage.session` so reopening the popup restores the last scan (results, stats, tab filter state).
 
 ## Features (v1.0 — Publishing Requirements)
 
 - [ ] **006 - Chrome Web Store listing assets** — Need store description, screenshots (1280x800), promotional images (440x280 small tile, 920x680 large tile), and category selection for publishing.
 - [ ] **007 - Enable GitHub Pages** — Turn on GitHub Pages for the repo so `index.html` and `privacy.html` are served at a public URL. Needed for Chrome Web Store homepage and privacy policy fields.
-- [ ] **008 - Bundle fonts locally** — `popup.html` loads JetBrains Mono and IBM Plex Sans from Google Fonts CDN. This means: (a) popup needs internet just to look right, (b) Google gets a request every time the popup opens, (c) Chrome Web Store reviewers may flag external resource loads. Fix: download the font files into a `fonts/` folder and reference them with `@font-face` in the CSS. Adds ~150KB but makes the extension fully self-contained.
 
 ## Features (UX Polish — Make Users Love It)
 
-- [ ] **013 - Persist scan results across popup close** — Store the last scan's results, stats, and page URL in `chrome.storage.session`. When the popup reopens on the same tab, restore everything instantly instead of showing the empty state. Clear when the tab navigates to a new page.
-- [ ] **014 - Light / dark theme** — Add a light theme and a toggle (sun/moon icon) in the header. Default to system preference via `prefers-color-scheme`. Persist choice. Dark-only alienates users who work in bright environments.
 - [ ] **019 - Scan complete notification** — If the user switches to another tab during a long scan, show a browser notification when done (e.g. "LinkCheck: 3 broken links found on example.com"). Uses `chrome.notifications` API. Only fire if popup is not focused.
 - [ ] **021 - Result sorting** — Allow sorting results by status code, URL, or link text. Click column-style sort indicators. Helps find patterns in large result sets.
 - [ ] **022 - Search / filter within results** — Small search input above the results list. Filters visible results by URL or link text as you type. Essential when a page has 200+ links.
@@ -56,3 +52,6 @@
 - [x] **017 - Tab counts in labels** — 2026-03-25
 - [x] **018 - Badge counter on toolbar icon** — 2026-03-25
 - [x] **020 - Keyboard shortcut (Ctrl+Shift+L)** — 2026-03-25
+- [x] **008 - Bundle fonts locally (76KB woff2)** — 2026-03-25
+- [x] **005/013 - Persist scan results across popup close** — 2026-03-25
+- [x] **014 - Light / dark theme with system default** — 2026-03-25

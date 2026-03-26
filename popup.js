@@ -36,17 +36,24 @@ const dom = {
   statOk:         $('stat-ok'),
   sectionTabs:    $('section-tabs'),
   results:        $('results'),
-  emptyState:     $('empty-state')
+  emptyState:     $('empty-state'),
+  btnTheme:       $('btn-theme'),
+  iconMoon:       $('icon-moon'),
+  iconSun:        $('icon-sun')
 };
 
 // ─── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   // Load saved options
-  const saved = await chrome.storage.local.get(['skipImages','skip403','showRedirects','highlight']);
+  const saved = await chrome.storage.local.get(['skipImages','skip403','showRedirects','highlight','theme']);
   dom.optSkipImages.checked = saved.skipImages ?? false;
   dom.optSkip403.checked    = saved.skip403    ?? false;
   dom.optShowRedirs.checked = saved.showRedirects ?? true;
   dom.optHighlight.checked  = saved.highlight    ?? true;
+
+  // Apply theme
+  const theme = saved.theme ?? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+  applyTheme(theme);
 
   // Get current tab
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
@@ -78,6 +85,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   dom.btnStop.addEventListener('click', stopScan);
   dom.btnExport.addEventListener('click', exportResults);
   dom.btnCopyBroken.addEventListener('click', copyBrokenLinks);
+  dom.btnTheme.addEventListener('click', toggleTheme);
 
   // Tabs
   document.querySelectorAll('.tab').forEach(t => {
@@ -86,8 +94,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       t.classList.add('active');
       state.currentTab = t.dataset.tab;
       filterResults();
+      saveSession();
     });
   });
+
+  // Restore previous scan if popup was closed and reopened
+  await restoreSession();
 });
 
 // ─── Scan ──────────────────────────────────────────────────────
@@ -199,6 +211,7 @@ async function startScan() {
   dom.btnExport.disabled = state.results.length === 0;
   dom.btnCopyBroken.classList.toggle('hidden',
     state.results.filter(r => r.isBroken && !r.skipped).length === 0);
+  saveSession();
   resetUI();
 }
 
@@ -471,6 +484,66 @@ function copyBrokenLinks() {
   const prev = label.textContent;
   label.textContent = 'Copied!';
   setTimeout(() => { label.textContent = prev; }, 1200);
+}
+
+// ─── Theme ──────────────────────────────────────────────────────
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  dom.iconMoon.classList.toggle('hidden', theme === 'light');
+  dom.iconSun.classList.toggle('hidden', theme === 'dark');
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  applyTheme(next);
+  chrome.storage.local.set({ theme: next });
+}
+
+// ─── Persist / restore results ──────────────────────────────────
+function saveSession() {
+  chrome.storage.session.set({
+    scanData: {
+      tabId: state.tabId,
+      tabUrl: state.tabUrl,
+      results: state.results,
+      total: state.total,
+      checked: state.checked,
+      currentTab: state.currentTab
+    }
+  });
+}
+
+async function restoreSession() {
+  const { scanData } = await chrome.storage.session.get('scanData');
+  if (!scanData || scanData.tabId !== state.tabId || scanData.results.length === 0) return false;
+
+  state.results = scanData.results;
+  state.total = scanData.total;
+  state.checked = scanData.checked;
+  state.currentTab = scanData.currentTab;
+
+  // Restore UI
+  dom.emptyState.classList.add('hidden');
+  dom.sectionStats.classList.remove('hidden');
+  dom.sectionTabs.classList.remove('hidden');
+  dom.btnStartLabel.textContent = 'Re-check';
+  dom.btnExport.disabled = false;
+
+  // Set active tab
+  document.querySelectorAll('.tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.tab === state.currentTab);
+  });
+
+  // Render all results
+  state.results.forEach(r => appendResult(r));
+  updateStats();
+
+  // Show copy broken if applicable
+  dom.btnCopyBroken.classList.toggle('hidden',
+    state.results.filter(r => r.isBroken && !r.skipped).length === 0);
+
+  return true;
 }
 
 // ─── Helpers ───────────────────────────────────────────────────

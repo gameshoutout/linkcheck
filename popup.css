@@ -1,3 +1,19 @@
+/* ─── Bundled Fonts ──────────────────────────────────────────── */
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400 700;
+  font-display: swap;
+  src: url('fonts/JetBrainsMono-latin.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'IBM Plex Sans';
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url('fonts/IBMPlexSans-latin.woff2') format('woff2');
+}
+
 /* ─── Variables ──────────────────────────────────────────────── */
 :root {
   --bg:          #13131a;
@@ -25,6 +41,29 @@
 
   --radius: 5px;
   --transition: 120ms ease;
+}
+
+/* ─── Light theme ────────────────────────────────────────────── */
+:root[data-theme="light"] {
+  --bg:          #f8f8fc;
+  --bg-2:        #eeeef4;
+  --bg-3:        #e2e2ec;
+  --border:      #d0d0de;
+  --border-2:    #bbbbc8;
+  --text:        #2e2e3e;
+  --text-dim:    #6e6e82;
+  --text-bright: #111118;
+
+  --broken:      #dc2626;
+  --broken-bg:   rgba(220,38,38,.10);
+  --redirect:    #ea580c;
+  --redirect-bg: rgba(234,88,12,.08);
+  --ok:          #16a34a;
+  --ok-bg:       rgba(22,163,74,.08);
+  --neutral:     #6b7280;
+
+  --accent:      #6366f1;
+  --accent-dim:  rgba(99,102,241,.10);
 }
 
 /* ─── Reset ──────────────────────────────────────────────────── */
@@ -79,11 +118,17 @@ header {
   color: var(--text-bright);
 }
 
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .page-host {
   font-family: var(--font-mono);
   font-size: 10px;
   color: var(--text-dim);
-  max-width: 220px;
+  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -92,6 +137,20 @@ header {
   border-radius: 20px;
   border: 1px solid var(--border);
 }
+
+.btn-theme {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 4px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition), border-color var(--transition);
+}
+.btn-theme:hover { color: var(--accent); border-color: var(--accent); }
 
 /* ─── Options chips ──────────────────────────────────────────── */
 .options-row {
