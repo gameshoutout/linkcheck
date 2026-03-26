@@ -71,9 +71,8 @@ async function attemptCheck(url, timeout) {
   const fetchOpts = {
     signal: controller.signal,
     redirect: 'follow',
-    credentials: 'omit',
-    cache: 'no-store',
-    headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LinkCheck/1.0)' }
+    credentials: 'include',
+    cache: 'no-store'
   };
 
   try {
