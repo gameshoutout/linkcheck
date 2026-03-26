@@ -23,6 +23,12 @@ const dom = {
   optSkip403:     $('opt-skip-403'),
   optShowRedirs:  $('opt-show-redirects'),
   optHighlight:   $('opt-highlight'),
+  optDedup:       $('opt-dedup'),
+  rangeTimeout:   $('range-timeout'),
+  timeoutVal:     $('timeout-val'),
+  rangeConcurrency:$('range-concurrency'),
+  concurrencyVal: $('concurrency-val'),
+  btnExportJson:  $('btn-export-json'),
   btnStart:       $('btn-start'),
   btnStartLabel:  $('btn-start-label'),
   btnStop:        $('btn-stop'),
@@ -52,11 +58,19 @@ const dom = {
 // ─── Init ─────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
   // Load saved options
-  const saved = await chrome.storage.local.get(['skipImages','skip403','showRedirects','highlight','theme']);
+  const saved = await chrome.storage.local.get([
+    'skipImages','skip403','showRedirects','highlight','theme',
+    'timeout','concurrency','dedup'
+  ]);
   dom.optSkipImages.checked = saved.skipImages ?? false;
   dom.optSkip403.checked    = saved.skip403    ?? false;
   dom.optShowRedirs.checked = saved.showRedirects ?? true;
   dom.optHighlight.checked  = saved.highlight    ?? true;
+  dom.optDedup.checked      = saved.dedup        ?? false;
+  dom.rangeTimeout.value    = saved.timeout      ?? 15;
+  dom.timeoutVal.textContent = `${dom.rangeTimeout.value}s`;
+  dom.rangeConcurrency.value = saved.concurrency ?? 5;
+  dom.concurrencyVal.textContent = dom.rangeConcurrency.value;
 
   // Apply theme
   const theme = saved.theme ?? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
@@ -76,15 +90,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Save options on change
-  ['optSkipImages','optSkip403','optShowRedirs','optHighlight'].forEach(k => {
+  // Save checkbox options on change
+  ['optSkipImages','optSkip403','optShowRedirs','optHighlight','optDedup'].forEach(k => {
     const keyMap = {
       optSkipImages: 'skipImages', optSkip403: 'skip403',
-      optShowRedirs: 'showRedirects', optHighlight: 'highlight'
+      optShowRedirs: 'showRedirects', optHighlight: 'highlight',
+      optDedup: 'dedup'
     };
     dom[k].addEventListener('change', () => {
       chrome.storage.local.set({ [keyMap[k]]: dom[k].checked });
     });
+  });
+
+  // Save range options on change
+  dom.rangeTimeout.addEventListener('input', () => {
+    dom.timeoutVal.textContent = `${dom.rangeTimeout.value}s`;
+    chrome.storage.local.set({ timeout: parseInt(dom.rangeTimeout.value) });
+  });
+  dom.rangeConcurrency.addEventListener('input', () => {
+    dom.concurrencyVal.textContent = dom.rangeConcurrency.value;
+    chrome.storage.local.set({ concurrency: parseInt(dom.rangeConcurrency.value) });
   });
 
   // Buttons
@@ -92,6 +117,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   dom.btnStop.addEventListener('click', stopScan);
   dom.btnExport.addEventListener('click', exportResults);
   dom.btnCopyBroken.addEventListener('click', copyBrokenLinks);
+  dom.btnExportJson.addEventListener('click', exportJson);
   dom.btnTheme.addEventListener('click', toggleTheme);
   dom.searchInput.addEventListener('input', () => {
     state.searchQuery = dom.searchInput.value.toLowerCase();
@@ -158,9 +184,19 @@ async function startScan() {
   // Apply filters
   const skipImages = dom.optSkipImages.checked;
   const skip403    = dom.optSkip403.checked;
+  const dedup      = dom.optDedup.checked;
 
   if (skipImages) {
     links = links.filter(l => !l.isImage);
+  }
+
+  if (dedup) {
+    const seen = new Set();
+    links = links.filter(l => {
+      if (seen.has(l.url)) return false;
+      seen.add(l.url);
+      return true;
+    });
   }
 
   if (links.length === 0) {
@@ -176,7 +212,8 @@ async function startScan() {
   updateStats(links.length, 0, 0, 0);
 
   // Check links with concurrency pool
-  const CONCURRENCY = 5;
+  const CONCURRENCY = parseInt(dom.rangeConcurrency.value) || 5;
+  const TIMEOUT_MS = (parseInt(dom.rangeTimeout.value) || 15) * 1000;
   const HIGHLIGHT_BATCH = 10;
   let idx = 0;
 
@@ -185,7 +222,7 @@ async function startScan() {
       const link = links[idx++];
       setProgress(`Checking: ${truncate(link.url, 48)}`, state.checked, state.total);
 
-      const result = await chrome.runtime.sendMessage({ type: 'CHECK_LINK', url: link.url });
+      const result = await chrome.runtime.sendMessage({ type: 'CHECK_LINK', url: link.url, timeout: TIMEOUT_MS });
       result.text = link.text;
 
       // Apply skip-403 filter
@@ -223,6 +260,7 @@ async function startScan() {
   }
 
   dom.btnExport.disabled = state.results.length === 0;
+  dom.btnExportJson.disabled = state.results.length === 0;
   dom.btnCopyBroken.classList.toggle('hidden',
     state.results.filter(r => r.isBroken && !r.skipped).length === 0);
   saveSession();
@@ -524,6 +562,33 @@ function exportResults() {
   URL.revokeObjectURL(url);
 }
 
+// ─── JSON export ────────────────────────────────────────────────
+function exportJson() {
+  const data = {
+    page: state.tabUrl,
+    date: new Date().toISOString(),
+    total: state.total,
+    results: state.results.map(r => ({
+      url: r.url,
+      text: r.text,
+      statusCode: r.statusCode,
+      finalUrl: r.finalUrl,
+      isRedirect: r.isRedirect,
+      isBroken: r.isBroken,
+      skipped: r.skipped || false,
+      error: r.error || null
+    }))
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safe = (state.tabUrl ? new URL(state.tabUrl).hostname : 'page').replace(/[^a-z0-9]/gi, '_');
+  a.href = url;
+  a.download = `linkcheck_${safe}_${dateStamp()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 // ─── Copy broken ────────────────────────────────────────────────
 function copyBrokenLinks() {
   const broken = state.results.filter(r => r.isBroken && !r.skipped);
@@ -597,6 +662,7 @@ async function restoreSession() {
   dom.sectionSearch.classList.remove('hidden');
   dom.btnStartLabel.textContent = 'Re-check';
   dom.btnExport.disabled = false;
+  dom.btnExportJson.disabled = false;
 
   // Set active tab
   document.querySelectorAll('.tab').forEach(t => {

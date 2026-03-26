@@ -2,10 +2,27 @@
 // Handles cross-origin fetch requests and link extraction
 
 const BROKEN_CODES = new Set([403, 404, 410, 500, 502, 503, 504]);
+const DEFAULT_TIMEOUT = 15000;
 
+// ─── Context menu ─────────────────────────────────────────────
+chrome.runtime.onInstalled.addListener(() => {
+  chrome.contextMenus.create({
+    id: 'linkcheck-scan',
+    title: 'Scan page with LinkCheck',
+    contexts: ['page']
+  });
+});
+
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === 'linkcheck-scan' && tab?.id) {
+    chrome.action.openPopup();
+  }
+});
+
+// ─── Message handler ──────────────────────────────────────────
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'CHECK_LINK') {
-    checkLink(msg.url)
+    checkLink(msg.url, msg.timeout || DEFAULT_TIMEOUT)
       .then(sendResponse)
       .catch(err => sendResponse({
         url: msg.url, statusCode: 0, finalUrl: msg.url,
@@ -29,9 +46,9 @@ chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 });
 
-async function checkLink(url) {
+async function checkLink(url, timeout) {
   const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
 
   const fetchOpts = {
     signal: controller.signal,

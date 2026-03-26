@@ -199,6 +199,47 @@ header {
 }
 .chip:has(input:checked) .chip-dot { background: var(--accent); }
 
+/* ─── Advanced options (ranges) ──────────────────────────────── */
+.options-advanced {
+  gap: 14px;
+}
+
+.range-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text-dim);
+  cursor: default;
+}
+
+.range-input {
+  width: 70px;
+  height: 3px;
+  -webkit-appearance: none;
+  appearance: none;
+  background: var(--bg-3);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+.range-input::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  cursor: pointer;
+}
+
+.range-label span {
+  min-width: 22px;
+  text-align: right;
+  color: var(--accent);
+  font-weight: 500;
+}
+
 /* ─── Action bar ─────────────────────────────────────────────── */
 .action-bar {
   display: flex;

@@ -3,7 +3,7 @@
   "name": "LinkCheck",
   "version": "1.0.0",
   "description": "Scan any webpage for broken and redirected links. Highlights issues in-page and exports results.",
-  "permissions": ["activeTab", "notifications", "scripting", "storage", "tabs"],
+  "permissions": ["activeTab", "contextMenus", "notifications", "scripting", "storage", "tabs"],
   "host_permissions": ["<all_urls>"],
   "action": {
     "default_popup": "popup.html",

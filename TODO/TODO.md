@@ -13,16 +13,11 @@
 
 ## Features (v1.x Roadmap — High Priority)
 
-- [ ] **023 - Configurable timeout** — Expose the 15s fetch timeout as a user setting. Currently hardcoded in `background.js:34`.
-- [ ] **024 - Configurable concurrency** — Slider or numeric input for parallel check workers. Currently hardcoded `CONCURRENCY = 5` in `popup.js:152`.
 - [ ] **025 - Ignore list / allowlist** — Persist URLs or patterns to always skip (e.g. localhost, internal domains). Stored in `chrome.storage.local`.
 
 ## Features (v1.x Roadmap — Medium Priority)
 
 - [ ] **026 - Retry logic** — Exponential back-off for transient 503/504 errors before marking as broken.
-- [ ] **027 - Right-click context menu** — Trigger scan from right-click context menu on page via `chrome.contextMenus` API.
-- [ ] **028 - JSON export format** — Export results as JSON in addition to Markdown.
-- [ ] **029 - Link deduplication option** — User toggle to check each unique URL only once (vs checking every anchor occurrence). Off by default.
 
 ## Features (v1.x Roadmap — Low Priority)
 
@@ -55,3 +50,8 @@
 - [x] **019 - Scan complete notification** — 2026-03-25
 - [x] **021 - Result sorting (status/url/text)** — 2026-03-25
 - [x] **022 - Search / filter within results** — 2026-03-25
+- [x] **023 - Configurable timeout (5–60s slider)** — 2026-03-25
+- [x] **024 - Configurable concurrency (1–20 slider)** — 2026-03-25
+- [x] **027 - Right-click context menu** — 2026-03-25
+- [x] **028 - JSON export format** — 2026-03-25
+- [x] **029 - Link deduplication toggle** — 2026-03-25
