@@ -427,6 +427,7 @@ button {
 .accent-broken .stat-num { color: var(--broken); }
 .accent-redirect .stat-num { color: var(--redirect); }
 .accent-ok .stat-num { color: var(--ok); }
+.accent-skipped .stat-num { color: var(--neutral); }
 
 .stat-divider {
   width: 1px;
@@ -596,6 +597,14 @@ button {
   text-decoration: none;
 }
 .result-url a:hover { color: var(--accent); text-decoration: underline; }
+
+.result-time {
+  margin-left: 6px;
+  font-size: 9px;
+  color: var(--text-dim);
+  opacity: .6;
+}
+.result-time-slow { color: var(--redirect); opacity: 1; }
 
 .result-redirect {
   font-family: var(--font-mono);

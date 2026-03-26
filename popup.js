@@ -44,6 +44,7 @@ const dom = {
   statBroken:     $('stat-broken'),
   statRedirects:  $('stat-redirects'),
   statOk:         $('stat-ok'),
+  statSkipped:    $('stat-skipped'),
   sectionTabs:    $('section-tabs'),
   results:        $('results'),
   emptyState:     $('empty-state'),
@@ -160,8 +161,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 });
 
 // ─── Scan ──────────────────────────────────────────────────────
+const UNSCANNABLE = /^(chrome|chrome-extension|edge|brave|about|devtools|file):\/\//;
+const STATUS_TEXT = {
+  0: 'Network Error', 200: 'OK', 201: 'Created', 204: 'No Content',
+  301: 'Moved Permanently', 302: 'Found', 307: 'Temporary Redirect', 308: 'Permanent Redirect',
+  400: 'Bad Request', 401: 'Unauthorized', 403: 'Forbidden', 404: 'Not Found',
+  405: 'Method Not Allowed', 408: 'Request Timeout', 410: 'Gone', 429: 'Too Many Requests',
+  500: 'Internal Server Error', 502: 'Bad Gateway', 503: 'Service Unavailable', 504: 'Gateway Timeout'
+};
+
 async function startScan() {
   if (!state.tabId) return;
+
+  // Detect unscannable pages early
+  if (state.tabUrl && UNSCANNABLE.test(state.tabUrl)) {
+    showError('Cannot scan this page. LinkCheck works on regular web pages (http/https).');
+    return;
+  }
 
   // Reset
   state.results  = [];
@@ -210,6 +226,12 @@ async function startScan() {
     links = links.filter(l => !l.isImage);
   }
 
+  // Filter out same-page fragment links (#section)
+  const pageBase = state.tabUrl?.split('#')[0];
+  if (pageBase) {
+    links = links.filter(l => l.url.split('#')[0] !== pageBase);
+  }
+
   if (dedup) {
     const seen = new Set();
     links = links.filter(l => {
@@ -233,6 +255,7 @@ async function startScan() {
   }
 
   state.total = links.length;
+  setProgress(`Found ${links.length} links — starting…`, 0, links.length);
   dom.sectionStats.classList.remove('hidden');
   dom.sectionTabs.classList.remove('hidden');
   dom.sectionSearch.classList.remove('hidden');
@@ -318,7 +341,7 @@ function setProgress(label, done, total) {
   dom.progressLabel.textContent = label;
   const pct = total > 0 ? Math.round((done / total) * 100) : 0;
   dom.progressBar.style.width = pct + '%';
-  dom.progressCount.textContent = total > 0 ? `${done} / ${total}` : '';
+  dom.progressCount.textContent = total > 0 ? `${done} / ${total} (${pct}%)` : '';
 }
 
 function updateProgress() {
@@ -330,17 +353,26 @@ function updateProgress() {
 
 // ─── Stats ─────────────────────────────────────────────────────
 function updateStats(total, broken, redirects, ok) {
+  let skipped = 0;
   if (arguments.length === 0) {
     const r = state.results;
     total     = state.total;
     broken    = r.filter(x => x.isBroken && !x.skipped).length;
     redirects = r.filter(x => x.isRedirect && !x.isBroken).length;
     ok        = r.filter(x => !x.isBroken && !x.isRedirect && !x.skipped && x.statusCode > 0).length;
+    skipped   = r.filter(x => x.skipped).length;
   }
   dom.statTotal.textContent     = total;
   dom.statBroken.textContent    = broken;
   dom.statRedirects.textContent = redirects;
   dom.statOk.textContent        = ok;
+  if (dom.statSkipped) {
+    dom.statSkipped.textContent = skipped;
+    dom.statSkipped.closest('.stat-cell').classList.toggle('hidden', skipped === 0);
+    // Also toggle the divider before it
+    const divider = dom.statSkipped.closest('.stat-cell').previousElementSibling;
+    if (divider?.classList.contains('stat-divider')) divider.classList.toggle('hidden', skipped === 0);
+  }
 
   // Update tab counts
   updateTabCounts(broken, redirects, ok);
@@ -380,7 +412,18 @@ function appendResult(r) {
   a.target = '_blank';
   a.rel = 'noopener';
   a.textContent = truncate(r.url, 56);
+  a.title = r.url;
   urlEl.appendChild(a);
+
+  // Response time
+  if (r.responseTime != null) {
+    const timeEl = document.createElement('span');
+    timeEl.className = 'result-time';
+    timeEl.textContent = r.responseTime < 1000 ? `${r.responseTime}ms` : `${(r.responseTime / 1000).toFixed(1)}s`;
+    if (r.responseTime > 5000) timeEl.classList.add('result-time-slow');
+    urlEl.appendChild(timeEl);
+  }
+
   urlRow.appendChild(urlEl);
 
   const copyBtn = document.createElement('button');
@@ -429,18 +472,24 @@ function appendResult(r) {
 function makeBadge(r) {
   const b = document.createElement('span');
   b.className = 'badge';
+  const code = r.statusCode || 0;
+  const meaning = STATUS_TEXT[code] || `HTTP ${code}`;
   if (r.skipped) {
     b.classList.add('badge-error');
     b.textContent = '403';
+    b.title = 'Forbidden (skipped)';
   } else if (r.isBroken) {
     b.classList.add('badge-broken');
-    b.textContent = r.statusCode > 0 ? String(r.statusCode) : 'ERR';
+    b.textContent = code > 0 ? String(code) : 'ERR';
+    b.title = code > 0 ? meaning : (r.error || 'Network error');
   } else if (r.isRedirect) {
     b.classList.add('badge-redirect');
-    b.textContent = String(r.statusCode);
+    b.textContent = String(code);
+    b.title = meaning;
   } else {
     b.classList.add('badge-ok');
-    b.textContent = String(r.statusCode);
+    b.textContent = String(code);
+    b.title = meaning;
   }
   return b;
 }
@@ -603,7 +652,8 @@ function exportJson() {
       isRedirect: r.isRedirect,
       isBroken: r.isBroken,
       skipped: r.skipped || false,
-      error: r.error || null
+      error: r.error || null,
+      responseTime: r.responseTime || null
     }))
   };
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -724,6 +774,9 @@ async function restoreSession() {
   // Show copy broken if applicable
   dom.btnCopyBroken.classList.toggle('hidden',
     state.results.filter(r => r.isBroken && !r.skipped).length === 0);
+
+  // Re-inject highlights
+  if (dom.optHighlight.checked) pushHighlights();
 
   return true;
 }

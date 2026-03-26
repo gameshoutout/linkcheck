@@ -55,6 +55,17 @@
 - [x] **029 - Link deduplication toggle** — 2026-03-25
 - [x] **025 - Ignore list / allowlist** — 2026-03-25
 - [x] **026 - Retry logic (exponential back-off for 503/504)** — 2026-03-25
+- [x] **040 - Friendly error for unscannable pages** — 2026-03-26
+- [x] **041 - Response time per link** — 2026-03-26
+- [x] **042 - Status code tooltips on badges** — 2026-03-26
+- [x] **043 - Full URL tooltip on hover** — 2026-03-26
+- [x] **044 - Skipped count in stats strip** — 2026-03-26
+- [x] **045 - Restore highlights on session restore** — 2026-03-26
+- [x] **046 - Progress shows percentage** — 2026-03-26
+- [x] **047 - Link count shown after extraction** — 2026-03-26
+- [x] **048 - Filter same-page fragment links** — 2026-03-26
+- [x] **049 - Context menu error handling** — 2026-03-26
+- [x] **050 - Response time in JSON export** — 2026-03-26
 - [x] **032 - Show scan elapsed time** — 2026-03-26
 - [x] **033 - Stop scan saves partial results** — 2026-03-26
 - [x] **034 - Highlight toggle clears/applies live** — 2026-03-26

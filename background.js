@@ -15,7 +15,7 @@ chrome.runtime.onInstalled.addListener(() => {
 
 chrome.contextMenus.onClicked.addListener((info, tab) => {
   if (info.menuItemId === 'linkcheck-scan' && tab?.id) {
-    chrome.action.openPopup();
+    chrome.action.openPopup().catch(() => {});
   }
 });
 
@@ -64,6 +64,7 @@ async function checkLink(url, timeout) {
 }
 
 async function attemptCheck(url, timeout) {
+  const startTime = Date.now();
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeout);
 
@@ -97,7 +98,7 @@ async function attemptCheck(url, timeout) {
     const isRedirect = normalize(finalUrl) !== normalize(url) && resp.ok;
     const isBroken = BROKEN_CODES.has(statusCode);
 
-    return { url, statusCode, finalUrl, isRedirect, isBroken, error: null };
+    return { url, statusCode, finalUrl, isRedirect, isBroken, error: null, responseTime: Date.now() - startTime };
   } catch (err) {
     clearTimeout(timeoutId);
     return {
@@ -106,7 +107,8 @@ async function attemptCheck(url, timeout) {
       finalUrl: url,
       isRedirect: false,
       isBroken: true,
-      error: err.name === 'AbortError' ? 'Timed out' : 'Connection failed'
+      error: err.name === 'AbortError' ? 'Timed out' : 'Connection failed',
+      responseTime: Date.now() - startTime
     };
   }
 }
