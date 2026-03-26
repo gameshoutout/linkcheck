@@ -1,6 +1,7 @@
 // popup.js — Main popup controller
 
 // ─── State ────────────────────────────────────────────────────
+const SORT_MODES = ['default', 'status', 'url', 'text'];
 const state = {
   tabId: null,
   tabUrl: null,
@@ -9,7 +10,9 @@ const state = {
   aborted: false,
   checked: 0,
   total: 0,
-  currentTab: 'all'
+  currentTab: 'all',
+  sortMode: 'default',
+  searchQuery: ''
 };
 
 // ─── DOM refs ─────────────────────────────────────────────────
@@ -39,7 +42,11 @@ const dom = {
   emptyState:     $('empty-state'),
   btnTheme:       $('btn-theme'),
   iconMoon:       $('icon-moon'),
-  iconSun:        $('icon-sun')
+  iconSun:        $('icon-sun'),
+  sectionSearch:  $('section-search'),
+  searchInput:    $('search-input'),
+  btnSort:        $('btn-sort'),
+  sortLabel:      $('sort-label')
 };
 
 // ─── Init ─────────────────────────────────────────────────────
@@ -86,6 +93,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   dom.btnExport.addEventListener('click', exportResults);
   dom.btnCopyBroken.addEventListener('click', copyBrokenLinks);
   dom.btnTheme.addEventListener('click', toggleTheme);
+  dom.searchInput.addEventListener('input', () => {
+    state.searchQuery = dom.searchInput.value.toLowerCase();
+    filterResults();
+  });
+  dom.btnSort.addEventListener('click', cycleSort);
 
   // Tabs
   document.querySelectorAll('.tab').forEach(t => {
@@ -160,6 +172,7 @@ async function startScan() {
   state.total = links.length;
   dom.sectionStats.classList.remove('hidden');
   dom.sectionTabs.classList.remove('hidden');
+  dom.sectionSearch.classList.remove('hidden');
   updateStats(links.length, 0, 0, 0);
 
   // Check links with concurrency pool
@@ -206,6 +219,7 @@ async function startScan() {
   if (!state.aborted) {
     setProgress('Done!', state.total, state.total);
     setTimeout(() => dom.sectionProgress.classList.add('hidden'), 1500);
+    notifyScanComplete();
   }
 
   dom.btnExport.disabled = state.results.length === 0;
@@ -275,6 +289,9 @@ function appendResult(r) {
   const row = document.createElement('div');
   row.className = 'result-row';
   row.dataset.category = getCategory(r);
+  row.dataset.url = r.url;
+  row.dataset.text = r.text || '';
+  row.dataset.status = r.statusCode || 0;
 
   const badge = makeBadge(r);
   const content = document.createElement('div');
@@ -405,11 +422,44 @@ function applyTabFilter(row) {
   // Honour showRedirects toggle in 'all' view
   if (tab === 'all' && cat === 'redirects' && !showRedirects) visible = false;
 
+  // Apply search filter
+  if (visible && state.searchQuery) {
+    const url = (row.dataset.url || '').toLowerCase();
+    const text = (row.dataset.text || '').toLowerCase();
+    visible = url.includes(state.searchQuery) || text.includes(state.searchQuery);
+  }
+
   row.classList.toggle('hidden', !visible);
 }
 
 function filterResults() {
   document.querySelectorAll('.result-row').forEach(applyTabFilter);
+}
+
+// ─── Sort ───────────────────────────────────────────────────────
+function cycleSort() {
+  const idx = SORT_MODES.indexOf(state.sortMode);
+  state.sortMode = SORT_MODES[(idx + 1) % SORT_MODES.length];
+  dom.sortLabel.textContent = state.sortMode.charAt(0).toUpperCase() + state.sortMode.slice(1);
+  applySortAndFilter();
+}
+
+function applySortAndFilter() {
+  const rows = Array.from(dom.results.querySelectorAll('.result-row'));
+  rows.sort((a, b) => {
+    if (state.sortMode === 'status') {
+      return (parseInt(a.dataset.status) || 0) - (parseInt(b.dataset.status) || 0);
+    }
+    if (state.sortMode === 'url') {
+      return (a.dataset.url || '').localeCompare(b.dataset.url || '');
+    }
+    if (state.sortMode === 'text') {
+      return (a.dataset.text || '').localeCompare(b.dataset.text || '');
+    }
+    return 0; // default = insertion order
+  });
+  rows.forEach(r => dom.results.appendChild(r));
+  filterResults();
 }
 
 // ─── Highlights ────────────────────────────────────────────────
@@ -486,6 +536,23 @@ function copyBrokenLinks() {
   setTimeout(() => { label.textContent = prev; }, 1200);
 }
 
+// ─── Notification ───────────────────────────────────────────────
+function notifyScanComplete() {
+  // Only notify if the popup isn't focused (user switched tabs)
+  if (document.hasFocus()) return;
+  const broken = state.results.filter(r => r.isBroken && !r.skipped).length;
+  const host = state.tabUrl ? new URL(state.tabUrl).hostname : 'page';
+  const msg = broken > 0
+    ? `${broken} broken link${broken > 1 ? 's' : ''} found on ${host}`
+    : `All links OK on ${host}`;
+  chrome.notifications.create({
+    type: 'basic',
+    iconUrl: 'icons/icon128.png',
+    title: 'LinkCheck',
+    message: msg
+  });
+}
+
 // ─── Theme ──────────────────────────────────────────────────────
 function applyTheme(theme) {
   document.documentElement.setAttribute('data-theme', theme);
@@ -527,6 +594,7 @@ async function restoreSession() {
   dom.emptyState.classList.add('hidden');
   dom.sectionStats.classList.remove('hidden');
   dom.sectionTabs.classList.remove('hidden');
+  dom.sectionSearch.classList.remove('hidden');
   dom.btnStartLabel.textContent = 'Re-check';
   dom.btnExport.disabled = false;
 

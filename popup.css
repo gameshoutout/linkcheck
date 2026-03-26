@@ -376,6 +376,48 @@ button {
 .tab:hover { color: var(--text); }
 .tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 
+/* ─── Search / sort bar ──────────────────────────────────────── */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  background: var(--bg-3);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  color: var(--text);
+  outline: none;
+  transition: border-color var(--transition);
+}
+.search-input::placeholder { color: var(--text-dim); }
+.search-input:focus { border-color: var(--accent); }
+
+.btn-sort {
+  background: var(--bg-3);
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+  padding: 4px 8px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  transition: all var(--transition);
+}
+.btn-sort:hover { color: var(--text); border-color: var(--border-2); }
+
 /* ─── Results ────────────────────────────────────────────────── */
 .results-list {
   flex: 1;

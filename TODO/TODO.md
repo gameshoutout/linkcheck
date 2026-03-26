@@ -10,9 +10,6 @@
 
 ## Features (UX Polish — Make Users Love It)
 
-- [ ] **019 - Scan complete notification** — If the user switches to another tab during a long scan, show a browser notification when done (e.g. "LinkCheck: 3 broken links found on example.com"). Uses `chrome.notifications` API. Only fire if popup is not focused.
-- [ ] **021 - Result sorting** — Allow sorting results by status code, URL, or link text. Click column-style sort indicators. Helps find patterns in large result sets.
-- [ ] **022 - Search / filter within results** — Small search input above the results list. Filters visible results by URL or link text as you type. Essential when a page has 200+ links.
 
 ## Features (v1.x Roadmap — High Priority)
 
@@ -55,3 +52,6 @@
 - [x] **008 - Bundle fonts locally (76KB woff2)** — 2026-03-25
 - [x] **005/013 - Persist scan results across popup close** — 2026-03-25
 - [x] **014 - Light / dark theme with system default** — 2026-03-25
+- [x] **019 - Scan complete notification** — 2026-03-25
+- [x] **021 - Result sorting (status/url/text)** — 2026-03-25
+- [x] **022 - Search / filter within results** — 2026-03-25

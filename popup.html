@@ -128,6 +128,17 @@
       <button class="tab" data-tab="ok">OK</button>
     </div>
 
+    <!-- Search / sort bar -->
+    <div id="section-search" class="search-bar hidden">
+      <input type="text" id="search-input" class="search-input" placeholder="Filter by URL or text…">
+      <button id="btn-sort" class="btn-sort" title="Sort results">
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M3 6h18M3 12h12M3 18h6"/>
+        </svg>
+        <span id="sort-label">Default</span>
+      </button>
+    </div>
+
     <!-- Results list -->
     <div id="results" class="results-list">
       <div class="empty-state" id="empty-state">
