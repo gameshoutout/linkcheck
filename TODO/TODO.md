@@ -2,10 +2,6 @@
 
 ## Bugs
 
-- [ ] **001 - innerHTML XSS in redirect display** — `popup.js:282` uses `innerHTML` with `r.finalUrl` to render the redirect arrow. A malicious redirect URL could inject HTML. Spec explicitly requires no `innerHTML` with unsanitized data. Must use `textContent` + DOM construction.
-- [ ] **002 - innerHTML XSS in showError** — `popup.js:427` uses `innerHTML` to display error messages. Should use `textContent` with styled spans created via DOM API.
-- [ ] **003 - Orphaned markdown table headers in export** — `popup.js:373-374` emits `| Status | URL | Text |` and a separator row, but actual entries below use plain text format. These table headers are never populated and don't match the spec export format. Remove them.
-- [ ] **004 - Magic number for highlight batch size** — Spec defines `HIGHLIGHT_BATCH = 10` as a named constant. Code uses hardcoded `10` at `popup.js:178`. Should be a named constant for clarity and maintainability.
 - [ ] **005 - Popup closes and loses scan results** — Chrome popups vanish when you click outside them. A 30-second scan is lost if the user clicks the page. Persist scan results to `chrome.storage.session` so reopening the popup restores the last scan (results, stats, tab filter state).
 
 ## Features (v1.0 — Publishing Requirements)
@@ -13,10 +9,6 @@
 - [ ] **006 - Chrome Web Store listing assets** — Need store description, screenshots (1280x800), promotional images (440x280 small tile, 920x680 large tile), and category selection for publishing.
 - [ ] **007 - Privacy policy page** — Chrome Web Store requires a privacy policy URL. Extension collects no data, but a simple policy page is still required. Will live in the GitHub repo (e.g. `PRIVACY.md`) and be served via GitHub Pages.
 - [ ] **008 - Bundle fonts locally** — `popup.html` loads JetBrains Mono and IBM Plex Sans from Google Fonts CDN. This means: (a) popup needs internet just to look right, (b) Google gets a request every time the popup opens, (c) Chrome Web Store reviewers may flag external resource loads. Fix: download the font files into a `fonts/` folder and reference them with `@font-face` in the CSS. Adds ~150KB but makes the extension fully self-contained.
-- [ ] **009 - LICENSE file** — Add an open source license (MIT or Apache 2.0) to the repo root. Required for open source publishing and good practice.
-- [ ] **010 - README.md** — Project README with: what it does, screenshot, install instructions (unpacked + Web Store link), build/dev notes, license badge. This is the first thing users and contributors see.
-- [ ] **011 - .gitignore** — Ignore `.claude/`, `*.zip`, `.DS_Store`, `node_modules/`, etc.
-- [ ] **012 - Git repository init** — Project has no git repo yet. Initialize, make first commit, push to GitHub.
 
 ## Features (UX Polish — Make Users Love It)
 
@@ -53,4 +45,11 @@
 
 ## Done
 
-_(Completed items move here with date)_
+- [x] **001 - innerHTML XSS in redirect display** — 2026-03-25
+- [x] **002 - innerHTML XSS in showError** — 2026-03-25
+- [x] **003 - Orphaned markdown table headers in export** — 2026-03-25
+- [x] **004 - Magic number for highlight batch size** — 2026-03-25
+- [x] **009 - LICENSE file (MIT)** — 2026-03-25
+- [x] **010 - README.md** — 2026-03-25
+- [x] **011 - .gitignore** — 2026-03-25
+- [x] **012 - Git repository init + push to GitHub** — 2026-03-25

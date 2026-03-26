@@ -148,8 +148,9 @@ async function startScan() {
   dom.sectionTabs.classList.remove('hidden');
   updateStats(links.length, 0, 0, 0);
 
-  // Check links with concurrency pool (5 at a time)
+  // Check links with concurrency pool
   const CONCURRENCY = 5;
+  const HIGHLIGHT_BATCH = 10;
   let idx = 0;
 
   async function worker() {
@@ -174,7 +175,7 @@ async function startScan() {
       updateStats();
 
       // Push page highlights periodically
-      if (dom.optHighlight.checked && state.checked % 10 === 0) {
+      if (dom.optHighlight.checked && state.checked % HIGHLIGHT_BATCH === 0) {
         pushHighlights();
       }
     }
@@ -279,7 +280,11 @@ function appendResult(r) {
   if (r.isRedirect && r.finalUrl !== r.url) {
     const rdEl = document.createElement('div');
     rdEl.className = 'result-redirect';
-    rdEl.innerHTML = `↪ <span style="opacity:.7">${truncate(r.finalUrl, 58)}</span>`;
+    rdEl.textContent = '↪ ';
+    const rdSpan = document.createElement('span');
+    rdSpan.style.opacity = '.7';
+    rdSpan.textContent = truncate(r.finalUrl, 58);
+    rdEl.appendChild(rdSpan);
     content.appendChild(rdEl);
   }
 
@@ -370,8 +375,6 @@ function exportResults() {
   const lines = [`# LinkCheck Results\n`];
   lines.push(`**Page:** ${state.tabUrl}`);
   lines.push(`**Date:** ${new Date().toLocaleString()}\n`);
-  lines.push(`| Status | URL | Text |`);
-  lines.push(`|--------|-----|------|`);
 
   const broken    = state.results.filter(r => r.isBroken && !r.skipped);
   const redirects = state.results.filter(r => r.isRedirect && !r.isBroken);
@@ -424,6 +427,11 @@ function pad(n) { return String(n).padStart(2, '0'); }
 
 function showError(msg) {
   dom.emptyState.classList.remove('hidden');
-  dom.emptyState.querySelector('p').innerHTML = `<span style="color:var(--broken)">${msg}</span>`;
+  const p = dom.emptyState.querySelector('p');
+  p.textContent = '';
+  const errSpan = document.createElement('span');
+  errSpan.style.color = 'var(--broken)';
+  errSpan.textContent = msg;
+  p.appendChild(errSpan);
   dom.sectionProgress.classList.add('hidden');
 }
