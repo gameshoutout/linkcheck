@@ -126,7 +126,7 @@ Fill these in on the dashboard for each permission:
 - Check all boxes that apply: **None** — no personal data, browsing history, or sensitive data is collected.
 
 ### 4. Privacy Policy URL
-- **Value:** `https://computerscienceiscool.github.io/linkcheck/privacy.html`
+- **Value:** `https://gameshoutout.github.io/linkcheck/privacy.html`
 
 ---
 
