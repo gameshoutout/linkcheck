@@ -37,4 +37,4 @@ LinkCheck makes no external requests except to the URLs already present on the p
 
 ## License
 
-[MIT](LICENSE)
+[Apache 2.0](LICENSE)

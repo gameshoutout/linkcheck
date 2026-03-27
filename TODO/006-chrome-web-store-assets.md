@@ -96,7 +96,7 @@ PRIVACY
 • No analytics, tracking, or data collection
 • No data leaves your browser except link check requests
 • Only stores 4 boolean preferences locally
-• Open source under MIT license
+• Open source under Apache 2.0 license
 
 Works on Chrome, Edge, Brave, and all Chromium browsers (88+).
 ```
