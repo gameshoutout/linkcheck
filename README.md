@@ -8,7 +8,6 @@ A lightweight Chrome extension that scans any webpage for broken and redirected 
 - Classifies links as **Broken**, **Redirect**, or **OK**
 - Real-time streaming results as links are checked
 - Visual highlights on the page with hover tooltips
-- Markdown export compatible with [gh-linkcheck](https://github.com/nicholasgasior/gh-linkcheck)
 - Configurable options: skip images, skip 403, show redirects, toggle highlights
 - Zero configuration — works out of the box
 - Privacy-first — no data leaves your browser except outbound link checks
@@ -29,7 +28,7 @@ _Coming soon._
 
 ## How It Works
 
-Click the extension icon on any webpage, then press **Check Links**. LinkCheck extracts all HTTP/HTTPS anchor links from the page, checks each one via HEAD request (falling back to GET), and streams results into the popup panel. Broken links get a red badge, redirects get orange, and OK links get green. If highlighting is enabled, broken and redirected links are outlined directly on the page with hover tooltips showing the status.
+Click the extension icon on any webpage, then press **Check Links**. LinkCheck extracts all HTTP/HTTPS anchor links from the page, checks each one via HEAD request (falling back to GET), and streams results into the popup panel. Broken links get a red badge, redirects get orange, and OK links get green. If highlighting is enabled, broken and redirected links are outlined directly on the page with hover tooltips showing the status. 
 
 ## Privacy
 
