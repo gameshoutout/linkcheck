@@ -33,7 +33,7 @@ Click the extension icon on any webpage, then press **Check Links**. LinkCheck e
 
 ## Privacy
 
-LinkCheck makes no external requests except to the URLs already present on the page you're scanning. No analytics, telemetry, or tracking of any kind. See [PRIVACY.md](PRIVACY.md) for the full privacy policy.
+LinkCheck makes no external requests except to the URLs already present on the page you're scanning. No analytics, telemetry, or tracking of any kind. See [privacy.html](privacy.html) for the full privacy policy.
 
 ## License
 
