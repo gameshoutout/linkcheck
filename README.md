@@ -16,7 +16,7 @@ A lightweight Chrome extension that scans any webpage for broken and redirected 
 
 ### Chrome Web Store
 
-_Coming soon._
+[Install LinkCheck from the Chrome Web Store](https://chromewebstore.google.com/detail/linkcheck/mcedpgkgnkcnaamkggligoahjackaghd)
 
 ### Load Unpacked (Development)
 

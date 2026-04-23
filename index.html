@@ -258,8 +258,12 @@
       font-weight: 600;
       font-size: 14px;
       border-radius: 8px;
-      cursor: not-allowed;
-      opacity: 0.5;
+      text-decoration: none;
+      transition: background 0.15s ease, transform 0.15s ease;
+    }
+    .btn-store:hover {
+      background: var(--accent-hover, #6d78e8);
+      transform: translateY(-1px);
     }
 
     /* ─── FAQ ─────────────────────────────────────── */
@@ -437,7 +441,7 @@
       <div class="install-options">
         <div class="install-card">
           <h3>Chrome Web Store</h3>
-          <p><span class="btn-store">Coming soon</span></p>
+          <p><a class="btn-store" href="https://chromewebstore.google.com/detail/linkcheck/mcedpgkgnkcnaamkggligoahjackaghd">Install LinkCheck</a></p>
           <p style="margin-top:12px;">Works on Chrome, Edge, Brave, and other Chromium browsers.</p>
         </div>
         <div class="install-card">
