@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>LinkCheck — Broken Link Scanner for Chrome</title>
-  <meta name="description" content="A free, open source Chrome extension that scans any webpage for broken and redirected links. One click to audit. Zero configuration.">
+  <title>LinkCheck — Broken Link Scanner for Chrome &amp; Firefox</title>
+  <meta name="description" content="A free, open source browser extension for Chrome and Firefox that scans any webpage for broken and redirected links. One click to audit. Zero configuration.">
   <style>
     :root {
       --bg: #13131a;
@@ -220,10 +220,10 @@
     /* ─── Install ─────────────────────────────────── */
     .install-options {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 1fr 1fr 1fr;
       gap: 20px;
     }
-    @media (max-width: 600px) {
+    @media (max-width: 720px) {
       .install-options { grid-template-columns: 1fr; }
     }
     .install-card {
@@ -321,6 +321,7 @@
       justify-content: center;
       gap: 24px;
       margin-bottom: 12px;
+      flex-wrap: wrap;
     }
   </style>
 </head>
@@ -338,7 +339,7 @@
     <p class="tagline">Scan any webpage for broken and redirected links. One click. Zero configuration.</p>
     <div class="hero-badges">
       <span class="badge"><span class="badge-dot" style="background:var(--ok)"></span> Free &amp; open source</span>
-      <span class="badge"><span class="badge-dot" style="background:var(--accent)"></span> Chrome / Edge / Brave</span>
+      <span class="badge"><span class="badge-dot" style="background:var(--accent)"></span> Chrome · Firefox · Edge · Brave</span>
       <span class="badge"><span class="badge-dot" style="background:var(--redirect)"></span> No data collected</span>
     </div>
   </div>
@@ -440,18 +441,21 @@
       <h2>Install</h2>
       <div class="install-options">
         <div class="install-card">
-          <h3>Chrome Web Store</h3>
-          <p><a class="btn-store" href="https://chromewebstore.google.com/detail/linkcheck/mcedpgkgnkcnaamkggligoahjackaghd">Install LinkCheck</a></p>
-          <p style="margin-top:12px;">Works on Chrome, Edge, Brave, and other Chromium browsers.</p>
+          <h3>Chrome / Edge / Brave</h3>
+          <p><a class="btn-store" href="https://chromewebstore.google.com/detail/linkcheck/mcedpgkgnkcnaamkggligoahjackaghd">Chrome Web Store</a></p>
+          <p style="margin-top:12px;">Works on any Chromium-based browser version 88 or later.</p>
         </div>
         <div class="install-card">
-          <h3>Manual install (developer)</h3>
+          <h3>Firefox</h3>
+          <p><a class="btn-store" href="https://addons.mozilla.org/firefox/addon/linkcheck/">Firefox Add-ons</a></p>
+          <p style="margin-top:12px;">Works on Firefox 115 or later, desktop only.</p>
+        </div>
+        <div class="install-card">
+          <h3>Manual install</h3>
           <ol>
             <li>Download or clone the <a href="https://github.com/gameshoutout/linkcheck">GitHub repo</a></li>
-            <li>Open Chrome and go to <code>chrome://extensions</code></li>
-            <li>Enable <strong>Developer Mode</strong> (top-right toggle)</li>
-            <li>Click <strong>Load unpacked</strong> and select the project folder</li>
-            <li>The LinkCheck icon appears in your toolbar</li>
+            <li>Chrome: open <code>chrome://extensions</code>, enable <strong>Developer Mode</strong>, click <strong>Load unpacked</strong></li>
+            <li>Firefox: open <code>about:debugging</code> → <strong>This Firefox</strong> → <strong>Load Temporary Add-on</strong>, pick <code>manifest.json</code></li>
           </ol>
         </div>
       </div>
@@ -465,7 +469,7 @@
 
       <details>
         <summary>What browsers does LinkCheck support?</summary>
-        <p>LinkCheck works on Chrome, Microsoft Edge, Brave, and any Chromium-based browser (version 88 or later). Firefox and Safari are not currently supported.</p>
+        <p>LinkCheck works on Chrome, Microsoft Edge, Brave, and any Chromium-based browser (version 88 or later), and on Firefox 115 or later. Safari is not currently supported.</p>
       </details>
 
       <details>
@@ -495,7 +499,7 @@
 
       <details>
         <summary>How do I give feedback or report a problem?</summary>
-        <p>Just send an email to <a href="mailto:support@gameshoutout.com?subject=LinkCheck%20%E2%80%94%20Feedback">support@gameshoutout.com</a> — we'd love to hear from you. You can also leave a review on the Chrome Web Store.</p>
+        <p>Just send an email to <a href="mailto:support@gameshoutout.com?subject=LinkCheck%20%E2%80%94%20Feedback">support@gameshoutout.com</a> — we'd love to hear from you. You can also leave a review on the Chrome Web Store or Firefox Add-ons.</p>
       </details>
 
       <details>
