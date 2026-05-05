@@ -745,7 +745,13 @@ function saveSession() {
 
 async function restoreSession() {
   const { scanData } = await chrome.storage.session.get('scanData');
-  if (!scanData || scanData.tabId !== state.tabId || scanData.results.length === 0) return false;
+  if (!scanData || scanData.results.length === 0) return false;
+  const sameTab = scanData.tabId === state.tabId;
+  const samePage = (scanData.tabUrl || '').split('#')[0] === (state.tabUrl || '').split('#')[0];
+  if (!sameTab || !samePage) {
+    chrome.storage.session.remove('scanData');
+    return false;
+  }
 
   state.results = scanData.results;
   state.total = scanData.total;

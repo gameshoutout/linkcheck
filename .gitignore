@@ -1,6 +1,7 @@
 .claude/
 *.zip
 dist-firefox/
+dist-chrome/
 .DS_Store
 node_modules/
 *.crx
