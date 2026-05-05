@@ -19,6 +19,14 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
   }
 });
 
+// Clear the per-tab badge when the tab navigates to a new URL,
+// so a stale broken-link count from a prior page doesn't linger.
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
+  if (changeInfo.url) {
+    chrome.action.setBadgeText({ text: '', tabId }).catch(() => {});
+  }
+});
+
 // ─── Message handler ──────────────────────────────────────────
 chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   if (msg.type === 'CHECK_LINK') {
